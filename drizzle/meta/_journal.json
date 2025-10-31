@@ -1,0 +1,48 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1761580875689,
+      "tag": "0000_pale_groot",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1761819479941,
+      "tag": "0001_rich_sally_floyd",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1761822836817,
+      "tag": "0002_short_angel",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1761822894033,
+      "tag": "0003_chilly_imperial_guard",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1761823347024,
+      "tag": "0004_stale_psynapse",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1761825521002,
+      "tag": "0005_lovely_nick_fury",
+      "breakpoints": true
+    }
+  ]
+}
