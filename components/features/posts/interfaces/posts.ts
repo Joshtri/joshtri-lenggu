@@ -8,6 +8,7 @@ export interface Post  extends BaseEntity{
     excerpt: string;
     authorId: number | null;
     labelId: number | null;
+    typeId: number | null;
 }
 
 export interface CreatePostInput {
@@ -18,6 +19,7 @@ export interface CreatePostInput {
     excerpt: string;
     authorId?: number;
     labelId?: number;
+    typeId?: number;
 }
 
 export interface UpdatePostInput {
@@ -28,4 +30,5 @@ export interface UpdatePostInput {
     excerpt?: string;
     authorId?: number;
     labelId?: number;
+    typeId?: number;
 }
