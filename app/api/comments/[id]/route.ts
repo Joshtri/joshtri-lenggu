@@ -10,9 +10,9 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const commentId = parseInt(id);
+    const commentId = String(id);
 
-    if (isNaN(commentId)) {
+    if (commentId) {
       return NextResponse.json(
         {
           success: false,
@@ -66,9 +66,9 @@ export async function PATCH(
 ) {
   try {
     const { id } = await params;
-    const commentId = parseInt(id);
+    const commentId = String(id);
 
-    if (isNaN(commentId)) {
+    if (commentId) {
       return NextResponse.json(
         {
           success: false,
@@ -146,9 +146,9 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    const commentId = parseInt(id);
+    const commentId = String(id);
 
-    if (isNaN(commentId)) {
+    if (commentId) {
       return NextResponse.json(
         {
           success: false,
