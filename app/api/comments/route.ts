@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
 
     // Filter by postId if provided
     if (postId) {
-      qb = qb.where(eq(comments.postId, Number(postId)));
+      qb = qb.where(eq(comments.postId, postId));
     }
 
     if (limit) {
