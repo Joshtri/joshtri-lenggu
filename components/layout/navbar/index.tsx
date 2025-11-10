@@ -28,12 +28,23 @@ export default function Navbar() {
   const router = useRouter();
   const { isSignedIn } = useUser();
 
-  // Check theme on mount
+  // Check and load saved theme on mount
   useEffect(() => {
-    const isDarkMode = document.documentElement.classList.contains("dark");
-    setTimeout(() => {
-      setIsDark(isDarkMode);
-    }, 100);
+    const savedTheme = localStorage.getItem("theme");
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    
+    // Use saved theme if available, otherwise use system preference
+    const shouldBeDark = savedTheme === "dark" || (!savedTheme && prefersDark);
+    
+    setIsDark(shouldBeDark);
+    
+    // Apply theme to document - only if it doesn't match current state
+    const htmlElement = document.documentElement;
+    if (shouldBeDark && !htmlElement.classList.contains("dark")) {
+      htmlElement.classList.add("dark");
+    } else if (!shouldBeDark && htmlElement.classList.contains("dark")) {
+      htmlElement.classList.remove("dark");
+    }
   }, []);
 
   // Fetch types for blog dropdown
@@ -107,9 +118,13 @@ export default function Navbar() {
                         className="w-48"
                       >
                         {typesLoading ? (
-                          <DropdownItem disabled>Loading...</DropdownItem>
+                          <DropdownItem key="loading" isDisabled>
+                            Loading...
+                          </DropdownItem>
                         ) : types.length === 0 ? (
-                          <DropdownItem disabled>No categories</DropdownItem>
+                          <DropdownItem key="no-types" isDisabled>
+                            No categories
+                          </DropdownItem>
                         ) : (
                           types.map((type) => (
                             <DropdownItem
@@ -154,6 +169,21 @@ export default function Navbar() {
               <Search className="w-5 h-5" />
             </Button>
 
+            {/* Theme Toggle */}
+            <Button
+              isIconOnly
+              variant="light"
+              aria-label="Toggle theme"
+              onClick={toggleTheme}
+              className="text-gray-900 dark:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-800"
+            >
+              {isDark ? (
+                <Sun className="w-5 h-5" />
+              ) : (
+                <Moon className="w-5 h-5" />
+              )}
+            </Button>
+
             {/* Mobile Menu - Dropdown */}
             <Dropdown placement="bottom-end">
               <DropdownTrigger>
@@ -196,22 +226,20 @@ export default function Navbar() {
                 </DropdownSection>
 
                 {/* Blog Categories in Mobile */}
-                {!typesLoading && types.length > 0 && (
+                {!typesLoading && types.length > 0 ? (
                   <DropdownSection title="Categories">
                     {types.map((type) => (
                       <DropdownItem
                         key={type.id}
-                        onPress={() =>
-                          router.push(`/${textToSlug(type.name)}`)
-                        }
+                        onPress={() => router.push(`/${textToSlug(type.name)}`)}
                       >
                         {type.name}
                       </DropdownItem>
                     ))}
                   </DropdownSection>
-                )}
+                ) : null}
 
-                {isSignedIn ? (
+                {isSignedIn && systemMenuItems.length > 0 ? (
                   <DropdownSection title="System">
                     {systemMenuItems.map((item) => (
                       <DropdownItem
