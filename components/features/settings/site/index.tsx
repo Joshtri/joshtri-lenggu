@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useForm, FormProvider } from "react-hook-form";
-import { Button } from "@heroui/react";
+import { Button, Card, CardBody, Divider } from "@heroui/react";
 import {
   SiteSettingsValue,
   DEFAULT_SITE_SETTINGS,
@@ -11,7 +11,10 @@ import {
 } from "../interfaces/settings";
 import { SettingsService } from "@/services/settingsService";
 import { TextInput, TextareaInput, SelectInput } from "@/components/ui/Inputs";
-import { ImageUpload } from "@/components/ui/Inputs/ImageUpload";
+import { ImageUploadInput } from "@/components/ui/Inputs/ImageUploadInput";
+import { SkeletonCard } from "@/components/ui/Skeletons/SkeletonCard";
+import { Heading } from "@/components/ui/Heading";
+import { Text } from "@/components/ui/Text";
 
 export default function SiteSettings() {
   const [loading, setLoading] = useState(false);
@@ -29,7 +32,6 @@ export default function SiteSettings() {
     formState: { isDirty },
   } = methods;
 
-  // Load settings on mount
   useEffect(() => {
     loadSettings();
   }, []);
@@ -67,120 +69,174 @@ export default function SiteSettings() {
   };
 
   if (loading) {
-    return <div className="p-6">Loading settings...</div>;
+    return <SkeletonCard hasFooter={false} hasHeader={false} rows={20} />;
   }
 
   return (
-    <FormProvider {...methods}>
-      <div className="space-y-6 ">
+    <FormProvider {...methods} >
+      <div className="space-y-4 md:space-y-6">
         <div>
-          <h2 className="text-2xl font-bold">Site Settings</h2>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">
+          <Heading className="text-xl md:text-2xl font-bold">
+            Site Settings
+          </Heading>
+          <Text className="text-sm md:text-base text-gray-600 dark:text-gray-400 mt-1">
             Configure general site information and preferences
-          </p>
+          </Text>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          {/* Site Name */}
-          <TextInput
-            name="siteName"
-            label="Site Name"
-            placeholder="My Blog"
-            required={true}
-            validation={{ required: "Site name is required" }}
-          />
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 md:space-y-6">
+          {/* Basic Information Section */}
+          <div>
+            <Heading className="text-base md:text-lg font-semibold mb-3">
+              Basic Information
+            </Heading>
 
-          {/* Site Description */}
-          <TextareaInput
-            name="siteDescription"
-            label="Site Description"
-            placeholder="A blog about technology and life"
-            rows={3}
-            required={true}
-          />
+            <div className="space-y-4">
+              {/* Site Name */}
+              <Card shadow="sm" className="w-full">
+                <CardBody className="p-4 md:p-6">
+                  <TextInput
+                    name="siteName"
+                    label="Site Name"
+                    placeholder="My Blog"
+                    required={true}
+                    validation={{ required: "Site name is required" }}
+                  />
+                </CardBody>
+              </Card>
 
-          {/* Site URL */}
-          <TextInput
-            name="siteUrl"
-            label="Site URL"
-            type="url"
-            placeholder="https://myblog.com"
-            required={true}
-            validation={{ required: "Site URL is required" }}
-          />
+              {/* Site Description */}
+              <Card shadow="sm" className="w-full">
+                <CardBody className="p-4 md:p-6">
+                  <TextareaInput
+                    name="siteDescription"
+                    label="Site Description"
+                    placeholder="A blog about technology and life"
+                    rows={3}
+                    required={true}
+                  />
+                </CardBody>
+              </Card>
 
-          {/* Logo & Favicon */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <ImageUpload
-              name="logo"
-              label="Logo"
-              required={false}
-              helperText="Upload your site logo (will upload on save)"
-            />
-            <ImageUpload
-              name="favicon"
-              label="Favicon"
-              required={false}
-              helperText="Upload your site favicon (will upload on save)"
-            />
+              {/* Site URL */}
+              <Card shadow="sm" className="w-full">
+                <CardBody className="p-4 md:p-6">
+                  <TextInput
+                    name="siteUrl"
+                    label="Site URL"
+                    type="url"
+                    placeholder="https://myblog.com"
+                    required={true}
+                    validation={{ required: "Site URL is required" }}
+                  />
+                </CardBody>
+              </Card>
+            </div>
           </div>
 
-          {/* Timezone & Language */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <SelectInput
-              name="timezone"
-              label="Timezone"
-              placeholder="Select timezone"
-              required={true}
-              options={[
-                { label: "Asia/Jakarta (WIB)", value: "Asia/Jakarta" },
-                { label: "Asia/Makassar (WITA)", value: "Asia/Makassar" },
-                { label: "Asia/Jayapura (WIT)", value: "Asia/Jayapura" },
-                { label: "UTC", value: "UTC" },
-              ]}
-            />
-            <SelectInput
-              name="language"
-              label="Language"
-              placeholder="Select language"
-              required={true}
-              options={[
-                { label: "Bahasa Indonesia", value: "id" },
-                { label: "English", value: "en" },
-              ]}
-            />
+          <Divider className="my-2" />
+
+          {/* Branding Section */}
+          <div>
+            <Heading className="text-base md:text-lg font-semibold mb-3">
+              Branding
+            </Heading>
+
+            <Card shadow="sm" className="w-full">
+              <CardBody className="p-4 md:p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                  <ImageUploadInput
+                    name="logo"
+                    label="Logo"
+                    required={false}
+                    helperText="Upload your site logo (will upload on save)"
+                  />
+                  <ImageUploadInput
+                    name="favicon"
+                    label="Favicon"
+                    required={false}
+                    helperText="Upload your site favicon (will upload on save)"
+                  />
+                </div>
+              </CardBody>
+            </Card>
           </div>
 
-          {/* Date Format */}
-          <SelectInput
-            name="dateFormat"
-            label="Date Format"
-            placeholder="Select date format"
-            required={true}
-            options={[
-              { label: "DD/MM/YYYY (31/12/2024)", value: "DD/MM/YYYY" },
-              { label: "MM/DD/YYYY (12/31/2024)", value: "MM/DD/YYYY" },
-            ]}
-          />
+          <Divider className="my-2" />
+
+          {/* Localization Section */}
+          <div>
+            <Heading className="text-base md:text-lg font-semibold mb-3">
+              Localization
+            </Heading>
+
+            <Card shadow="sm" className="w-full">
+              <CardBody className="p-4 md:p-6">
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <SelectInput
+                      name="timezone"
+                      label="Timezone"
+                      placeholder="Select timezone"
+                      required={true}
+                      options={[
+                        { label: "Asia/Jakarta (WIB)", value: "Asia/Jakarta" },
+                        { label: "Asia/Makassar (WITA)", value: "Asia/Makassar" },
+                        { label: "Asia/Jayapura (WIT)", value: "Asia/Jayapura" },
+                        { label: "UTC", value: "UTC" },
+                      ]}
+                    />
+                    <SelectInput
+                      name="language"
+                      label="Language"
+                      placeholder="Select language"
+                      required={true}
+                      options={[
+                        { label: "Bahasa Indonesia", value: "id" },
+                        { label: "English", value: "en" },
+                      ]}
+                    />
+                  </div>
+
+                  <SelectInput
+                    name="dateFormat"
+                    label="Date Format"
+                    placeholder="Select date format"
+                    required={true}
+                    options={[
+                      { label: "DD/MM/YYYY (31/12/2024)", value: "DD/MM/YYYY" },
+                      { label: "MM/DD/YYYY (12/31/2024)", value: "MM/DD/YYYY" },
+                    ]}
+                  />
+                </div>
+              </CardBody>
+            </Card>
+          </div>
+
+          <Divider className="my-4" />
 
           {/* Save Button */}
-          <div className="flex items-center gap-4 pt-4 border-t">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
             <Button
               type="submit"
               color="primary"
+              size="lg"
               isDisabled={!isDirty || saveStatus === "saving"}
               isLoading={saveStatus === "saving"}
+              className="w-full sm:w-auto"
             >
               {saveStatus === "saving" ? "Saving..." : "Save Changes"}
             </Button>
 
             {saveStatus === "success" && (
-              <span className="text-green-600">
+              <Text className="text-sm text-green-600">
                 Settings saved successfully!
-              </span>
+              </Text>
             )}
             {saveStatus === "error" && (
-              <span className="text-red-600">Failed to save settings</span>
+              <Text className="text-sm text-red-600">
+                Failed to save settings
+              </Text>
             )}
           </div>
         </form>
