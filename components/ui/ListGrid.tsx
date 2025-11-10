@@ -18,6 +18,9 @@ import {
 import { ReactNode, useEffect, useMemo, useState } from "react";
 import { EllipsisIcon, FileText } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { apiClient } from "@/lib/axios";
+import { ApiResponse } from "@/interfaces/api";
 
 import SearchBar from "@/components/ui/SearchBar";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
@@ -33,6 +36,7 @@ import {
 } from "./Button/ActionButtons";
 import { ErrorState } from "./Common/ErrorState";
 import EmptyState from "./Common/EmptyState";
+import { LoadingScreen } from "./Loading/LoadingScreen";
 
 interface Column<T = unknown> {
   key: string;
@@ -52,6 +56,8 @@ export type Columns<T> = Array<{
 
 interface Row {
   key: string;
+  // @ts-expect-error: We know this is unsafe, but it's a tradeoff for type safety
+  _originalItem?: unknown; // Store original typed item
   [key: string]: string | number | boolean | ReactNode | undefined;
 }
 
@@ -88,6 +94,7 @@ interface ListGridProps<T = unknown> {
   title: string;
   description?: string;
   breadcrumbs?: { label: string; href?: string }[];
+  withoutBreadcrumbs?: boolean;
 
   // Simplified action buttons
   addButton?: AddButtonConfig;
@@ -100,6 +107,9 @@ interface ListGridProps<T = unknown> {
   onSearch?: (value: string) => void;
   columns: Column<T>[];
 
+  // NEW! Resource-based fetching (pass resource path like "posts", "comments")
+  resourcePath?: string; // e.g., "/posts" or "/comments"
+  
   // NEW! Auto-mapping: pass raw data array or API response
   // Supports: T[], { data: T[] }, or { data: { data: T[] } }
   data?: DataExtractor<T>;
@@ -128,18 +138,21 @@ interface ListGridProps<T = unknown> {
   // Delete confirmation
   deleteConfirmTitle?: string;
   deleteConfirmMessage?: (item: T) => string;
+  onDelete?: (id: string) => Promise<void> | void; // NEW! Delete handler
 }
 
 export function ListGrid<T = unknown>({
   title,
   description,
   breadcrumbs,
+  withoutBreadcrumbs = false,
   addButton,
   actionButtons,
   actions: customActions,
   searchPlaceholder = "Cari...",
   onSearch,
   columns,
+  resourcePath,
   isError,
   error,
   data,
@@ -150,6 +163,7 @@ export function ListGrid<T = unknown>({
   loading = false,
   empty,
   onOptionsClick,
+  onDelete,
   optionsMenu = [],
   pageSize = 10,
   showPagination = true,
@@ -163,8 +177,34 @@ export function ListGrid<T = unknown>({
       (item as { name?: string })?.name || "item ini"
     }"?`,
 }: ListGridProps<T>) {
-  const isMobileDevice = useMediaQuery("maxWidth: 768px");
+  // Use card view for mobile and tablet devices (up to 1024px)
+  const isMobileDevice = useMediaQuery("(max-width: 1024px)");
   const isMobile = isMobileProp ?? isMobileDevice;
+  const queryClient = useQueryClient();
+
+  // NEW! Auto-fetch data if resourcePath is provided
+  const {
+    data: fetchedData,
+    isLoading: isFetching,
+    isError: isFetchError,
+    error: fetchError,
+  } = useQuery({
+    queryKey: [resourcePath],
+    queryFn: async () => {
+      if (!resourcePath) return null;
+      const { data } = await apiClient.get<ApiResponse<T[]>>(resourcePath);
+      return data;
+    },
+    enabled: !!resourcePath && !data, // Only fetch if resourcePath provided and no data prop
+    staleTime: 5000,
+    gcTime: 10 * 60 * 1000,
+  });
+
+  // Use fetched data if available, otherwise use provided data
+  const actualData = data || fetchedData;
+  const actualLoading = loading || isFetching;
+  const actualError = isError || isFetchError;
+  const actualErrorObj = error || fetchError;
 
   // Helper: Extract array from API response
   const extractDataArray = (input: DataExtractor<T> | undefined): T[] => {
@@ -176,7 +216,7 @@ export function ListGrid<T = unknown>({
     }
 
     // Case 2: { data: T[] } or { data?: T[] } or { data: { data: T[] } }
-    if ('data' in input) {
+    if ("data" in input) {
       const nested = input.data;
 
       // Case 2a: data is undefined or null
@@ -190,7 +230,7 @@ export function ListGrid<T = unknown>({
       }
 
       // Case 2c: { data: { data: T[] } } or { data: { data?: T[] } }
-      if (typeof nested === 'object' && 'data' in nested) {
+      if (typeof nested === "object" && "data" in nested) {
         const deepNested = (nested as { data?: unknown }).data;
 
         if (!deepNested) {
@@ -208,9 +248,9 @@ export function ListGrid<T = unknown>({
 
   // Auto-transform data to rows if data prop is provided
   const rows = useMemo(() => {
-    if (data) {
+    if (actualData) {
       // Extract array from various API response formats
-      const dataArray = extractDataArray(data);
+      const dataArray = extractDataArray(actualData);
 
       // Automatically map data array to rows
       return dataArray.map((item) => {
@@ -219,6 +259,7 @@ export function ListGrid<T = unknown>({
           key: String(record[keyField] ?? ""),
           id: String(record[idField] ?? ""),
           name: String(record[nameField] ?? ""),
+          _originalItem: item, // Store original item for type safety
           ...record, // Spread all data for column value functions
         } as Row;
       });
@@ -226,7 +267,7 @@ export function ListGrid<T = unknown>({
 
     // Use manually provided rows
     return manualRows ?? [];
-  }, [data, manualRows, keyField, idField, nameField]);
+  }, [actualData, manualRows, keyField, idField, nameField]);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [sortKey, setSortKey] = useState<string>("");
@@ -263,12 +304,27 @@ export function ListGrid<T = unknown>({
 
   // Handle delete confirmation
   const handleDeleteConfirm = async () => {
-    if (!itemToDelete || !actionButtons?.delete) return;
+    if (!itemToDelete) return;
 
     setIsDeleting(true);
 
     try {
-      await actionButtons.delete.onDelete(itemToDelete.id, itemToDelete.item);
+      if (onDelete) {
+        // Use provided delete handler
+        await onDelete(itemToDelete.id);
+      } else if (actionButtons?.delete) {
+        // Use actionButtons delete handler
+        await actionButtons.delete.onDelete(itemToDelete.id, itemToDelete.item);
+      } else if (resourcePath) {
+        // Use auto-delete via API
+        await apiClient.delete(`${resourcePath}/${itemToDelete.id}`);
+      }
+      
+      // Refetch data after successful delete
+      if (resourcePath) {
+        await queryClient.invalidateQueries({ queryKey: [resourcePath] });
+      }
+      
       setIsDeleteDialogOpen(false);
       setItemToDelete(null);
     } catch (error) {
@@ -302,12 +358,14 @@ export function ListGrid<T = unknown>({
     ): string => {
       const { basePath, suffix } = handler.__autoRoute;
       const normalizedBase = basePath.replace(/\/$/, "");
-      return suffix ? `${normalizedBase}/${id}${suffix}` : `${normalizedBase}/${id}`;
+      return suffix
+        ? `${normalizedBase}/${id}${suffix}`
+        : `${normalizedBase}/${id}`;
     };
 
     // Process show button
     if (processed.show?.onClick && isAutoRouteHandler(processed.show.onClick)) {
-      const originalHandler = processed.show.onClick as {
+      const originalHandler = processed.show.onClick as unknown as {
         __autoRoute: { basePath: string; suffix?: string };
       };
       processed.show = {
@@ -321,7 +379,7 @@ export function ListGrid<T = unknown>({
 
     // Process edit button
     if (processed.edit?.onClick && isAutoRouteHandler(processed.edit.onClick)) {
-      const originalHandler = processed.edit.onClick as {
+      const originalHandler = processed.edit.onClick as unknown as {
         __autoRoute: { basePath: string; suffix?: string };
       };
       processed.edit = {
@@ -339,7 +397,10 @@ export function ListGrid<T = unknown>({
   // Create action buttons renderer
   const renderActions = useMemo(() => {
     if (processedActionButtons) {
-      return createActionButtons(processedActionButtons, openDeleteDialog);
+      return createActionButtons(
+        processedActionButtons,
+        openDeleteDialog as (id: string, item: unknown) => void
+      );
     }
 
     return null;
@@ -371,7 +432,7 @@ export function ListGrid<T = unknown>({
       // Apply column value functions if defined
       columns.forEach((column) => {
         if (column.value && column.key !== "actions") {
-          transformedRow[column.key] = column.value(row);
+          transformedRow[column.key] = column.value(row as T);
         }
       });
 
@@ -439,10 +500,10 @@ export function ListGrid<T = unknown>({
     return (
       <div
         key={item.key}
-        className="relative bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden"
+        className="relative bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden"
       >
-        {/* Blue top border */}
-        <div className="h-1 bg-blue-500" />
+        {/* Colored top border */}
+        <div className="h-1 bg-linear-to-r from-gray-500 to-gray-900" />
 
         <div className="p-4 space-y-3">
           {columns
@@ -452,14 +513,14 @@ export function ListGrid<T = unknown>({
                 key={`${item.key}-${column.key}`}
                 className={`flex flex-col ${
                   columnIndex !== columns.length - 2
-                    ? "pb-3 border-b border-gray-100"
+                    ? "pb-3 border-b border-gray-100 dark:border-gray-800"
                     : ""
                 }`}
               >
-                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+                <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">
                   {column.label}
                 </div>
-                <div className="text-sm text-gray-900 font-medium">
+                <div className="text-sm text-gray-900 dark:text-gray-100 font-medium">
                   {typeof item[column.key] === "object" &&
                   item[column.key] !== null
                     ? item[column.key]
@@ -470,7 +531,7 @@ export function ListGrid<T = unknown>({
 
           {/* Actions for mobile */}
           {item.actions && (
-            <div className="flex justify-end pt-2 border-t border-gray-100">
+            <div className="flex justify-end pt-2 border-t border-gray-100 dark:border-gray-800">
               {item.actions}
             </div>
           )}
@@ -484,23 +545,25 @@ export function ListGrid<T = unknown>({
       {Array.from({ length: pageSize }).map((_, index) => (
         <div
           key={index}
-          className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden"
+          className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm overflow-hidden"
         >
-          <div className="h-1 bg-gray-200 animate-pulse" />
+          <div className="h-1 bg-gray-200 dark:bg-gray-700 animate-pulse" />
           <div className="p-4 space-y-3">
-            {columns.map((_, columnIndex) => (
-              <div
-                key={columnIndex}
-                className={`${
-                  columnIndex !== columns.length - 1
-                    ? "pb-3 border-b border-gray-100"
-                    : ""
-                }`}
-              >
-                <div className="h-3 bg-gray-200 rounded w-1/3 mb-2 animate-pulse" />
-                <div className="h-4 bg-gray-200 rounded w-2/3 animate-pulse" />
-              </div>
-            ))}
+            {columns
+              .filter((col) => col.key !== "actions")
+              .map((_, columnIndex) => (
+                <div
+                  key={columnIndex}
+                  className={`${
+                    columnIndex !== columns.length - 2
+                      ? "pb-3 border-b border-gray-100 dark:border-gray-800"
+                      : ""
+                  }`}
+                >
+                  <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-2 animate-pulse" />
+                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-2/3 animate-pulse" />
+                </div>
+              ))}
           </div>
         </div>
       ))}
@@ -542,40 +605,56 @@ export function ListGrid<T = unknown>({
     );
   };
 
-
-  if (isError) {
+  if (actualError) {
     return (
       <div className="p-4 md:p-6 space-y-4 md:space-y-6">
-        <PageHeader
-          breadcrumbs={breadcrumbs}
-          title={title}
-          description={description}
-        />
+        {!withoutBreadcrumbs && (
+          <PageHeader
+            breadcrumbs={breadcrumbs}
+            title={title}
+            description={description}
+          />
+        )}
         <ErrorState
           title="Gagal Memuat Data"
-          message={error?.message || "Terjadi kesalahan tak dikenal."}
+          message={actualErrorObj?.message || "Terjadi kesalahan tak dikenal."}
           onRetry={() => window.location.reload()}
         />
       </div>
     );
   }
 
-  console.log('check empty  conditon', empty)
+  // console.log('check empty  conditon', empty)
+
+  // if (loading) {
+  //   return <LoadingScreen isLoading={loading} />;
+  // }
   return (
     <>
+      <LoadingScreen isLoading={actualLoading} />
       <div className="p-4 md:p-6 space-y-4 md:space-y-6">
-        <PageHeader
-          actions={
-            <div className="flex items-center gap-2">
+        {!withoutBreadcrumbs ? (
+          <PageHeader
+            actions={
+              <div className="flex items-center gap-2">
+                {!isMobile && renderOptionsMenu()}
+                {renderAddButton || customActions}
+              </div>
+            }
+            breadcrumbs={breadcrumbs}
+            description={description}
+            title={title}
+            onOptionsClick={onOptionsClick}
+          />
+        ) : (
+          /* Show action buttons even without breadcrumbs */
+          (renderAddButton || customActions || renderOptionsMenu()) && (
+            <div className="flex justify-end items-center gap-2">
               {!isMobile && renderOptionsMenu()}
               {renderAddButton || customActions}
             </div>
-          }
-          breadcrumbs={breadcrumbs}
-          description={description}
-          title={title}
-          onOptionsClick={onOptionsClick}
-        />
+          )
+        )}
 
         {onSearch && (
           <SearchBar
@@ -587,26 +666,23 @@ export function ListGrid<T = unknown>({
           />
         )}
 
-        {loading ? (
+        {actualLoading ? (
           isMobile ? (
             renderMobileSkeleton()
           ) : (
-            <SkeletonTable columns={columns.length} rows={pageSize} />
+            <>
+              <SkeletonTable columns={columns.length} rows={pageSize} />
+            </>
           )
-        )
-        : rows.length === 0 ? (
+        ) : rows.length === 0 ? (
           // CASE: No data available
           <EmptyState
             title="Tidak ada data"
             description="Belum ada data yang tersedia."
             icon={<FileText className="w-12 h-12" />}
           />
-        )
-        : filteredRows.length === 0 ? (
+        ) : filteredRows.length === 0 ? (
           empty ?? (
-            // <div className="text-center py-12">
-            //   <div className="text-gray-400 text-sm">Data kosong.</div>
-            // </div>
             <>
               <EmptyState
                 title="Data kosong"
@@ -617,9 +693,10 @@ export function ListGrid<T = unknown>({
           )
         ) : isMobile ? (
           <div className="space-y-4">
-            <div className="grid gap-4">
+            {/* Responsive grid: 1 column on mobile, 2 columns on tablet */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {paginatedRows.map((item, index) =>
-                renderMobileCard(item, index)
+                renderMobileCard(item as Row, index)
               )}
             </div>
 
@@ -698,7 +775,6 @@ export function ListGrid<T = unknown>({
           </div>
         )}
       </div>
-
       {/* Delete Confirmation Dialog */}
       <ConfirmDialog
         confirmLabel="Hapus"
@@ -706,7 +782,9 @@ export function ListGrid<T = unknown>({
         isOpen={isDeleteDialogOpen}
         message={
           itemToDelete
-            ? deleteConfirmMessage(itemToDelete.item)
+            ? deleteConfirmMessage(
+                (itemToDelete.item._originalItem || itemToDelete.item) as T
+              )
             : "Apakah Anda yakin?"
         }
         title={deleteConfirmTitle}
