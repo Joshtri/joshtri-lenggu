@@ -2,16 +2,16 @@ import { BaseEntity } from "@/interfaces/api";
 
 export interface Comment extends BaseEntity {
     content: string;
-    authorId: number | null;
-    postId: number | null;
-    parentId: number | null; // For nested/threaded comments
+    authorId: string | null;
+    postId: string | null;
+    parentId: string | null; // For nested/threaded comments
 }
 
 export interface CreateCommentInput {
     content: string;
-    authorId?: number;
-    postId: number;
-    parentId?: number;
+    authorId?: string;
+    postId: string;
+    parentId?: string;
 }
 
 export interface UpdateCommentInput {
