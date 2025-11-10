@@ -22,7 +22,7 @@ export const postsKeys = {
   list: (params?: QueryParams) =>
     [...postsKeys.lists(), params] as const,
   details: () => [...postsKeys.all, "detail"] as const,
-  detail: (id: number) => [...postsKeys.details(), id] as const,
+  detail: (id: string | number) => [...postsKeys.details(), id] as const,
 };
 
 // ==================== API FUNCTIONS (using Axios) ====================
@@ -67,7 +67,7 @@ async function updatePost({
 }
 
 // Delete post
-async function deletePost(id: string | number): Promise<ApiResponse<null>> {
+async function deletePost(id: string): Promise<ApiResponse<null>> {
   const { data } = await apiClient.delete<ApiResponse<null>>(`/posts/${id}`);
   return data;
 }
@@ -85,9 +85,9 @@ export function usePosts(params?: QueryParams) {
 }
 
 // Hook: Fetch single post
-export function usePost(id: string | number) {
+export function usePost(id: string) {
   return useQuery({
-    queryKey: postsKeys.detail(id as number),
+    queryKey: postsKeys.detail(id),
     queryFn: () => getPost(id),
     enabled: !!id,
     staleTime: 5000,
@@ -115,10 +115,11 @@ export function useCreatePost() {
 
           // Create temporary post with negative ID
           const optimisticPost: Post = {
-            id: -Date.now(), // Temporary negative ID
             ...newPost,
+            id: `temp-${Date.now()}`, // Temporary ID
             authorId: newPost.authorId || null,
             labelId: newPost.labelId || null,
+            typeId: newPost.typeId || null,
             createdAt: new Date(),
             updatedAt: null,
             deletedAt: null,
@@ -155,7 +156,7 @@ export function useCreatePost() {
         title: "Failed to create post",
         description: error.message,
         color: "danger",
-       
+
       })
     },
   });
@@ -196,7 +197,7 @@ export function useUpdatePost() {
           return {
             ...old,
             data: old.data.map((post) =>
-              post.id === id ? { ...post, ...updateData } : post
+              post.id.toString() === id.toString() ? { ...post, ...updateData } : post
             ),
           };
         }
@@ -256,7 +257,7 @@ export function useDeletePost() {
           if (!old?.data) return old;
           return {
             ...old,
-            data: old.data.filter((post) => post.id !== id),
+            data: old.data.filter((post) => post.id.toString() !== id.toString()),
           };
         }
       );
@@ -280,7 +281,7 @@ export function useDeletePost() {
         queryClient.setQueryData(postsKeys.lists(), context.previousPosts);
       }
 
-      
+
       Toast({
         title: "Failed to delete post",
         description: error.message,
@@ -296,10 +297,11 @@ export function useDeletePost() {
 // Export for use with React 19.2 useOptimistic hook
 export function getOptimisticPost(input: CreatePostInput): Post {
   return {
-    id: -Date.now(),
     ...input,
+    id: `temp-${Date.now()}`,
     authorId: input.authorId || null,
     labelId: input.labelId || null,
+    typeId: input.typeId || null,
     createdAt: new Date(),
     updatedAt: null,
     deletedAt: null,
