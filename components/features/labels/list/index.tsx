@@ -1,19 +1,18 @@
 "use client";
 
-import { useDeleteLabel, useLabels } from "@/services/labelsService";
-import { useRouter } from "next/navigation";
-import React from "react";
-import { Label } from "../interfaces/labels";
+import {
+  ACTION_BUTTONS,
+  ADD_BUTTON,
+} from "@/components/ui/Button/ActionButtons";
 import { ListGrid } from "@/components/ui/ListGrid";
-import { EyeIcon, PencilIcon, PlusIcon } from "lucide-react";
-import { ACTION_BUTTONS, ADD_BUTTON } from "@/components/ui/Button/ActionButtons";
+import { useDeleteLabel } from "@/services/labelsService";
+import { Tooltip } from "@heroui/react";
+import { useRouter } from "next/navigation";
+import { Label } from "../interfaces/labels";
 
 export default function LabelList() {
   const router = useRouter();
-
-  const { data: dataLabels, isLoading, isError, error } = useLabels();
   const deleteLabel = useDeleteLabel();
-  // const labels = data?.data || [];
 
   const columns = [
     {
@@ -29,7 +28,16 @@ export default function LabelList() {
     {
       key: "color",
       label: "Color",
-      value: (label: Label) => label.color,
+      value: (label: Label) => (
+        <>
+          <Tooltip content={label.color} placement="top">
+            <div
+              className="w-6 h-6 border cursor-pointer"
+              style={{ backgroundColor: label.color }}
+            />
+          </Tooltip>
+        </>
+      ),
     },
     {
       key: "description",
@@ -44,10 +52,7 @@ export default function LabelList() {
   ];
 
   const handleDelete = (id: string) => {
-    deleteLabel.mutateAsync(Number(id)).then(() => {
-      // Router refresh will trigger re-fetch from cache
-      router.refresh();
-    });
+    return deleteLabel.mutateAsync(id);
   };
 
   return (
@@ -56,26 +61,16 @@ export default function LabelList() {
       idField="id"
       title={"Label Management"}
       description={"Manage your labels"}
-      // addButton={{
-      //   label: "Tambah Label",
-      //   href: "/labels/create",
-      //   icon: <PlusIcon className="w-4 h-4" />,
-      // }}
       actionButtons={{
         add: ADD_BUTTON.CREATE("/labels/create"),
-        show: ACTION_BUTTONS.SHOW((id) => router.push(`/labels/${id}`)),
         edit: ACTION_BUTTONS.EDIT((id) => router.push(`/labels/${id}/edit`)),
         delete: ACTION_BUTTONS.DELETE(handleDelete),
       }}
-      isError={isError}
-      error={error}
-      loading={isLoading}
-      empty={dataLabels?.data?.length === 0}
+      resourcePath="/labels"
       nameField="name"
       searchPlaceholder="Search labels by name, description, or color..."
-      data={dataLabels}
       onSearch={(query) => {}}
-      columns={columns as never}
+      columns={columns}
       pageSize={10}
       showPagination={true}
     />
