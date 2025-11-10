@@ -2,7 +2,6 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/lib/axios";
-
 import { ApiResponse, QueryParams } from "@/interfaces/api";
 import { Comment, CreateCommentInput, UpdateCommentInput } from "@/components/features/comments/interfaces/comments";
 import { Toast } from "@/components/ui/Toast";
@@ -12,9 +11,9 @@ export const commentsKeys = {
   all: ["comments"] as const,
   lists: () => [...commentsKeys.all, "list"] as const,
   list: (params?: QueryParams) => [...commentsKeys.lists(), params] as const,
-  byPost: (postId: number) => [...commentsKeys.all, "post", postId] as const,
+  byPost: (postId: string) => [...commentsKeys.all, "post", postId] as const,
   details: () => [...commentsKeys.all, "detail"] as const,
-  detail: (id: number) => [...commentsKeys.details(), id] as const,
+  detail: (id: string) => [...commentsKeys.details(), id] as const,
 };
 
 // ==================== API FUNCTIONS (using Axios) ====================
@@ -31,7 +30,7 @@ async function fetchComments(
 
 // Fetch comments by post ID
 async function fetchCommentsByPost(
-  postId: number,
+  postId: string,
   params?: QueryParams
 ): Promise<ApiResponse<Comment[]>> {
   const { data } = await apiClient.get<ApiResponse<Comment[]>>(
@@ -42,7 +41,7 @@ async function fetchCommentsByPost(
 }
 
 // Fetch single comment
-async function getComment(id: number): Promise<ApiResponse<Comment>> {
+async function getComment(id: string): Promise<ApiResponse<Comment>> {
   const { data } = await apiClient.get<ApiResponse<Comment>>(`/comments/${id}`);
   return data;
 }
@@ -63,7 +62,7 @@ async function updateComment({
   id,
   data: commentData,
 }: {
-  id: number;
+  id: string;
   data: UpdateCommentInput;
 }): Promise<ApiResponse<Comment>> {
   const { data } = await apiClient.patch<ApiResponse<Comment>>(
@@ -74,7 +73,7 @@ async function updateComment({
 }
 
 // Delete comment
-async function deleteComment(id: number): Promise<ApiResponse<null>> {
+async function deleteComment(id: string): Promise<ApiResponse<null>> {
   const { data } = await apiClient.delete<ApiResponse<null>>(`/comments/${id}`);
   return data;
 }
@@ -92,22 +91,22 @@ export function useComments(params?: QueryParams) {
 }
 
 // Hook: Fetch comments by post ID
-export function useCommentsByPost(postId: number, params?: QueryParams) {
+export function useCommentsByPost(postId: string) {
   return useQuery({
     queryKey: commentsKeys.byPost(postId),
-    queryFn: () => fetchCommentsByPost(postId, params),
-    enabled: !!postId && postId > 0,
+    queryFn: () => fetchCommentsByPost(postId),
+    enabled: !!postId && postId.length > 0,
     staleTime: 5000,
     gcTime: 10 * 60 * 1000,
   });
 }
 
 // Hook: Fetch single comment
-export function useComment(id: number) {
+export function useComment(id: string) {
   return useQuery({
     queryKey: commentsKeys.detail(id),
     queryFn: () => getComment(id),
-    enabled: !!id && id > 0,
+    enabled: !!id && id.length > 0,
     staleTime: 5000,
   });
 }
@@ -141,7 +140,7 @@ export function useCreateComment() {
 
           // Create temporary comment with negative ID
           const optimisticComment: Comment = {
-            id: -Date.now(),
+            id: `temp-${Date.now()}`,
             ...newComment,
             authorId: newComment.authorId || null,
             postId: newComment.postId || null,
@@ -166,7 +165,7 @@ export function useCreateComment() {
             if (!old?.data) return old;
 
             const optimisticComment: Comment = {
-              id: -Date.now(),
+              id: `temp-${Date.now()}`,
               ...newComment,
               authorId: newComment.authorId || null,
               postId: newComment.postId || null,
@@ -257,7 +256,7 @@ export function useUpdateComment() {
           return {
             ...old,
             data: old.data.map((comment) =>
-              comment.id === id ? { ...comment, ...updateData } : comment
+              comment.id.toString() === id.toString() ? { ...comment, ...updateData } : comment
             ),
           };
         }
@@ -319,7 +318,7 @@ export function useDeleteComment() {
           if (!old?.data) return old;
           return {
             ...old,
-            data: old.data.filter((comment) => comment.id !== id),
+            data: old.data.filter((comment) => comment.id.toString() !== id.toString()),
           };
         }
       );
@@ -356,7 +355,7 @@ export function useDeleteComment() {
 // Export for use with optimistic updates
 export function getOptimisticComment(input: CreateCommentInput): Comment {
   return {
-    id: -Date.now(),
+    id: `temp-${Date.now()}`,
     ...input,
     authorId: input.authorId || null,
     postId: input.postId || null,
