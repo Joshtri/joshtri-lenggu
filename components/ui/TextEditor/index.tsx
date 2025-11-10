@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, forwardRef, useImperativeHandle } from "react";
 import type Quill from "quill";
+// @ts-expect-error side-effect import of Quill Snow CSS (add a .d.ts declaring this module if you prefer)
 import "quill/dist/quill.snow.css";
 import { cn } from "@heroui/react";
 
