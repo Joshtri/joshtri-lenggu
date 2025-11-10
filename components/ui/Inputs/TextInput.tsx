@@ -11,6 +11,8 @@ interface TextInputProps {
   placeholder?: string;
   disabled?: boolean;
   required?: boolean;
+  isInvalid?: boolean;
+  errorMessage?: string;
   type?: "text" | "password" | "email" | "number" | "tel" | "url";
   validation?: RegisterOptions;
 }
@@ -22,6 +24,8 @@ export const TextInput = ({
   disabled = false,
   required = true,
   type = "text",
+  isInvalid = false,
+  errorMessage,
   validation,
 }: TextInputProps) => {
   const {
@@ -51,13 +55,19 @@ export const TextInput = ({
         render={({ field }) => (
           <Input
             {...field}
+            classNames={{
+              input: "dark:text-white",
+              inputWrapper: "dark:bg-gray-800 dark:border-gray-700",
+              label: "dark:text-gray-300",
+              description: "dark:text-gray-400",
+            }}
             endContent={
               isPassword ? (
                 <button
                   aria-label={
                     show ? "Sembunyikan password" : "Tampilkan password"
                   }
-                  className="inline-flex items-center justify-center p-1"
+                  className="inline-flex items-center justify-center p-1 text-gray-600 dark:text-gray-400"
                   type="button"
                   onClick={toggleShow}
                 >
@@ -72,7 +82,7 @@ export const TextInput = ({
             errorMessage={error}
             id={name}
             isDisabled={disabled}
-            isInvalid={!!error}
+            isInvalid={!!error || isInvalid}
             isRequired={required}
             labelPlacement="outside"
             placeholder={placeholder}
