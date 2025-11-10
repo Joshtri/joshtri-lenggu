@@ -63,6 +63,10 @@ export const CheckboxInput = ({
           name={name}
           render={({ field }) => (
             <Checkbox
+              classNames={{
+                label: "dark:text-gray-300",
+                wrapper: "dark:border-gray-600",
+              }}
               color={color}
               isDisabled={disabled}
               isInvalid={!!error}
@@ -91,6 +95,10 @@ export const CheckboxInput = ({
         name={name}
         render={({ field }) => (
           <CheckboxGroup
+            classNames={{
+              label: "dark:text-gray-300",
+              description: "dark:text-gray-400",
+            }}
             color={color}
             isDisabled={disabled}
             isInvalid={!!error}
@@ -99,7 +107,14 @@ export const CheckboxInput = ({
             onValueChange={field.onChange}
           >
             {options.map(option => (
-              <Checkbox key={option.value} value={option.value}>
+              <Checkbox
+                key={option.value}
+                classNames={{
+                  label: "dark:text-gray-300",
+                  wrapper: "dark:border-gray-600",
+                }}
+                value={option.value}
+              >
                 {option.label}
               </Checkbox>
             ))}
