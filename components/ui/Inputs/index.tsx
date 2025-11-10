@@ -10,3 +10,4 @@ export { DatePickerInput } from "./DatePickerInput";
 export { CurrencyInput } from "./CurrencyInput";
 export { OTPInput } from "./OTPInput";
 export { ReadOnlyInput } from "./ReadOnlyInput";
+export { IconSelector } from "./IconSelector";
