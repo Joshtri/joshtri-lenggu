@@ -3,6 +3,7 @@ import { posts } from "./posts.schema";
 import { labels } from "./labels.schema";
 import { users } from "./users.schema";
 import { comments } from "./comments.schema";
+import { postViews } from "./post_views.schema";
 
 // Define relations for posts
 export const postsRelations = relations(posts, ({ one, many }) => ({
@@ -15,6 +16,7 @@ export const postsRelations = relations(posts, ({ one, many }) => ({
     references: [labels.id],
   }),
   comments: many(comments),
+  views: many(postViews),
 }));
 
 // Define relations for labels
@@ -43,4 +45,12 @@ export const commentsRelations = relations(comments, ({ one, many }) => ({
     references: [comments.id],
   }),
   replies: many(comments),
+}));
+
+// Define relations for post views
+export const postViewsRelations = relations(postViews, ({ one }) => ({
+  post: one(posts, {
+    fields: [postViews.postId],
+    references: [posts.id],
+  }),
 }));
