@@ -33,14 +33,14 @@ export const ColorPickerInput = ({
   const [localColor, setLocalColor] = useState("#000000");
 
   // Default validation rules for hex color
-  const defaultValidation: RegisterOptions = {
+  const defaultValidation = {
     required: required ? "Color is required" : false,
     pattern: {
       value: /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/,
       message: "Please enter a valid hex color (e.g., #FF5733)",
     },
     ...validation,
-  };
+  } as RegisterOptions;
 
   return (
     <FormFieldWrapper
