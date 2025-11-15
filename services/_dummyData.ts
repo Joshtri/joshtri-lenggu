@@ -14,7 +14,7 @@
 //   {
 //     id: 2,
 //     name: "Technology",
-//     color: "#10B981", // Green
+//     color: "#10B981", // Greenp
 //     description: "Tech tutorials and insights",
 //     createdAt: new Date("2024-01-01"),
 //     updatedAt: new Date("2024-01-01"),
