@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
 import { db } from "@/db";
-import { comments } from "@/db/schema";
+import { comments, users } from "@/db/schema";
 import { desc, eq } from "drizzle-orm";
 
 // GET - Fetch all comments (with optional filtering by postId)
@@ -12,8 +13,24 @@ export async function GET(request: NextRequest) {
     const postId = searchParams.get("postId");
 
     let qb = db
-      .select()
+      .select({
+        id: comments.id,
+        content: comments.content,
+        authorId: comments.authorId,
+        postId: comments.postId,
+        parentId: comments.parentId,
+        createdAt: comments.createdAt,
+        updatedAt: comments.updatedAt,
+        deletedAt: comments.deletedAt,
+        author: {
+          id: users.id,
+          name: users.name,
+          image: users.image,
+          role: users.role,
+        },
+      })
       .from(comments)
+      .leftJoin(users, eq(comments.authorId, users.id))
       .orderBy(desc(comments.createdAt))
       .$dynamic();
 
@@ -56,8 +73,21 @@ export async function GET(request: NextRequest) {
 // POST - Create new comment
 export async function POST(request: NextRequest) {
   try {
+    // Check if user is authenticated
+    const { userId } = await auth();
+
+    if (!userId) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Unauthorized - Please sign in to comment",
+        },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
-    const { content, authorId, postId, parentId } = body;
+    const { content, postId, parentId, authorId } = body;
 
     // Validation
     if (!content || !postId) {
@@ -70,11 +100,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate that authorId matches the authenticated user
+    if (authorId !== userId) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Forbidden - Cannot create comment as another user",
+        },
+        { status: 403 }
+      );
+    }
+
     const newComment = await db
       .insert(comments)
       .values({
         content,
-        authorId: authorId || null,
+        authorId: userId,
         postId,
         parentId: parentId || null,
       })
