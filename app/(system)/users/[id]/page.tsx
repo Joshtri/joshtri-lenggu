@@ -2,8 +2,18 @@
 
 import { useUser } from "@/services/usersService";
 import { useParams, useRouter } from "next/navigation";
-import { Spinner, Button, Card, CardBody, CardHeader, Avatar, Chip } from "@heroui/react";
+import {
+  Spinner,
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  Avatar,
+  Chip,
+} from "@heroui/react";
 import { ArrowLeft, Mail, User, Calendar, Clock, Shield } from "lucide-react";
+import { Heading } from "@/components/ui/Heading";
+import { Text } from "@/components/ui/Text";
 
 export default function UserDetailPage() {
   const params = useParams();
@@ -28,10 +38,7 @@ export default function UserDetailPage() {
           <p className="text-gray-600 mt-2">
             {error instanceof Error ? error.message : "Failed to load user"}
           </p>
-          <Button
-            className="mt-4"
-            onPress={() => router.push("/users")}
-          >
+          <Button className="mt-4" onPress={() => router.push("/users")}>
             Back to Users
           </Button>
         </div>
@@ -68,7 +75,11 @@ export default function UserDetailPage() {
             )}
             <div className="mt-4 flex items-center gap-2">
               {user.emailVerified ? (
-                <Chip color="success" variant="flat" startContent={<Shield className="w-3 h-3" />}>
+                <Chip
+                  color="success"
+                  variant="flat"
+                  startContent={<Shield className="w-3 h-3" />}
+                >
                   Verified
                 </Chip>
               ) : (
@@ -85,36 +96,66 @@ export default function UserDetailPage() {
           <CardHeader className="flex items-center gap-3 bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
             <User className="h-6 w-6 text-blue-600" />
             <div>
-              <h1 className="text-2xl font-bold">User Details</h1>
-              <p className="text-sm text-gray-600">Information from Clerk</p>
+              <Heading className="text-2xl font-bold text-black">
+                User Details
+              </Heading>
+              <Text className="text-sm text-gray-600 dark:text-gray-800">
+                Information from Clerk
+              </Text>
             </div>
           </CardHeader>
           <CardBody className="space-y-6 p-6">
             {/* Basic Info */}
             <div>
-              <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+              <Heading className="text-lg font-semibold mb-3 flex items-center gap-2">
                 <User className="h-5 w-5" />
                 Basic Information
-              </h3>
+              </Heading>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-semibold text-gray-700">User ID</label>
-                  <p className="text-gray-900 mt-1 font-mono text-xs break-all">{user.id}</p>
+                  <Heading
+                    level={6}
+                    className="text-sm font-semibold text-gray-700 dark:text-gray-300"
+                  >
+                    User ID
+                  </Heading>
+                  <Text className="text-gray-900 dark:text-gray-300 mt-1 font-mono text-xs break-all">
+                    {user.id}
+                  </Text>
                 </div>
                 <div>
-                  <label className="text-sm font-semibold text-gray-700 flex items-center gap-1">
+                  <Heading
+                    level={6}
+                    className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-1"
+                  >
                     <Mail className="h-4 w-4" />
                     Email
-                  </label>
-                  <p className="text-gray-900 mt-1">{user.email || "N/A"}</p>
+                  </Heading>
+                  <Text className="text-gray-900 dark:text-gray-300 mt-1">
+                    {user.email || "N/A"}
+                  </Text>
                 </div>
                 <div>
-                  <label className="text-sm font-semibold text-gray-700">First Name</label>
-                  <p className="text-gray-900 mt-1">{user.firstName || "N/A"}</p>
+                  <Heading
+                    level={6}
+                    className="text-sm font-semibold text-gray-700 dark:text-gray-300"
+                  >
+                    First Name
+                  </Heading>
+                  <Text className="text-gray-900 dark:text-gray-300 mt-1">
+                    {user.firstName || "N/A"}
+                  </Text>
                 </div>
                 <div>
-                  <label className="text-sm font-semibold text-gray-700">Last Name</label>
-                  <p className="text-gray-900 mt-1">{user.lastName || "N/A"}</p>
+                  <Heading
+                    level={6}
+                    className="text-sm font-semibold text-gray-700 dark:text-gray-300"
+                  >
+                    Last Name
+                  </Heading>
+                  <Text className="text-gray-900 dark:text-gray-300 mt-1">
+                    {user.lastName || "N/A"}
+                  </Text>
                 </div>
               </div>
             </div>
@@ -127,13 +168,17 @@ export default function UserDetailPage() {
               </h3>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-semibold text-gray-700">Created At</label>
+                  <label className="text-sm font-semibold text-gray-700">
+                    Created At
+                  </label>
                   <p className="text-gray-900 mt-1">
                     {new Date(user.createdAt).toLocaleString()}
                   </p>
                 </div>
                 <div>
-                  <label className="text-sm font-semibold text-gray-700">Updated At</label>
+                  <label className="text-sm font-semibold text-gray-700">
+                    Updated At
+                  </label>
                   <p className="text-gray-900 mt-1">
                     {new Date(user.updatedAt).toLocaleString()}
                   </p>
@@ -174,7 +219,9 @@ export default function UserDetailPage() {
             {/* External Accounts */}
             {user.externalAccounts && user.externalAccounts.length > 0 && (
               <div className="border-t pt-4">
-                <h3 className="text-lg font-semibold mb-3">External Accounts</h3>
+                <h3 className="text-lg font-semibold mb-3">
+                  External Accounts
+                </h3>
                 <div className="space-y-2">
                   {user.externalAccounts.map((account, index) => (
                     <div key={index} className="flex items-center gap-2">
