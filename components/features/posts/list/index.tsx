@@ -50,6 +50,12 @@ export function PostList() {
       value: (post) => <>{post.excerpt}</>,
     },
     {
+      key: "viewsCount",
+      label: "Views",
+      align: "center" as const,
+      value: (post) => <>{post.viewsCount}</>,
+    },
+    {
       key: "status",
       label: "Status",
       align: "center" as const,
