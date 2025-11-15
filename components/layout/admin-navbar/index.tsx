@@ -1,10 +1,11 @@
 "use client";
 
 import { SignedIn, UserButton, useUser } from "@clerk/nextjs";
-import { Bell, Search, Menu, Sun, Moon } from "lucide-react";
+import { Search, Menu, Sun, Moon } from "lucide-react";
 import { Button, Input } from "@heroui/react";
 import UserSkeleton from "@/components/features/profile/components/UserSkeleton";
 import { Text } from "@/components/ui/Text";
+import { NotificationGrid } from "@/components/features/notifications/NotificationGrid";
 import { useState, useEffect } from "react";
 
 interface AdminNavbarProps {
@@ -12,6 +13,10 @@ interface AdminNavbarProps {
    * Callback function when menu button is clicked (opens sidebar on mobile)
    */
   onMenuClick: () => void;
+  /**
+   * Callback function to toggle sidebar collapse (desktop only)
+   */
+  onToggleCollapse?: () => void;
   /**
    * Loading state for the navbar
    * @default false
@@ -21,32 +26,28 @@ interface AdminNavbarProps {
 
 export function AdminNavbar({
   onMenuClick,
+  onToggleCollapse,
   isLoading = false,
 }: AdminNavbarProps) {
   const { user, isLoaded } = useUser();
-  const [isDark, setIsDark] = useState(false);
-
-  // Check and load saved theme on mount
-  useEffect(() => {
+  const [isDark, setIsDark] = useState(() => {
+    if (typeof window === "undefined") return false;
     const savedTheme = localStorage.getItem("theme");
     const prefersDark = window.matchMedia(
       "(prefers-color-scheme: dark)"
     ).matches;
+    return savedTheme === "dark" || (!savedTheme && prefersDark);
+  });
 
-    // Use saved theme if available, otherwise use system preference
-    const shouldBeDark =
-      savedTheme === "dark" || (!savedTheme && prefersDark);
-
-    setIsDark(shouldBeDark);
-
-    // Apply theme to document - only if it doesn't match current state
+  // Apply theme to document on mount and when theme changes
+  useEffect(() => {
     const htmlElement = document.documentElement;
-    if (shouldBeDark && !htmlElement.classList.contains("dark")) {
+    if (isDark && !htmlElement.classList.contains("dark")) {
       htmlElement.classList.add("dark");
-    } else if (!shouldBeDark && htmlElement.classList.contains("dark")) {
+    } else if (!isDark && htmlElement.classList.contains("dark")) {
       htmlElement.classList.remove("dark");
     }
-  }, []);
+  }, [isDark]);
 
   const toggleTheme = () => {
     const newIsDark = !isDark;
@@ -77,7 +78,19 @@ export function AdminNavbar({
           </Button>
 
           {/* Search Bar (hidden on mobile) */}
-          <div className="hidden md:flex items-center relative">
+          <div className="hidden md:flex items-center gap-2">
+            {/* Desktop Menu Button - Toggles sidebar collapse */}
+            {onToggleCollapse && (
+              <Button
+                isIconOnly
+                variant="light"
+                className="hidden lg:flex text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800"
+                onPress={onToggleCollapse}
+                aria-label="Toggle sidebar"
+              >
+                <Menu className="w-5 h-5" />
+              </Button>
+            )}
             <Input
               type="text"
               placeholder="Search..."
@@ -86,7 +99,9 @@ export function AdminNavbar({
                 input: "dark:text-white",
                 inputWrapper: "dark:bg-gray-800 dark:border-gray-700",
               }}
-              startContent={<Search className="w-4 h-4 text-gray-400 dark:text-gray-500" />}
+              startContent={
+                <Search className="w-4 h-4 text-gray-400 dark:text-gray-500" />
+              }
             />
           </div>
         </div>
@@ -111,20 +126,15 @@ export function AdminNavbar({
             onClick={toggleTheme}
             className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800"
           >
-            {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            {isDark ? (
+              <Sun className="w-5 h-5" />
+            ) : (
+              <Moon className="w-5 h-5" />
+            )}
           </Button>
 
-          {/* Notifications */}
-          <Button
-            isIconOnly
-            variant="light"
-            className="relative text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800"
-            aria-label="Notifications"
-          >
-            <Bell className="w-5 h-5" />
-            {/* Notification badge */}
-            <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
-          </Button>
+          {/* Notifications - Role-based rendering (Admin/Visitor) */}
+          <NotificationGrid />
 
           {/* User Profile */}
           <div className="flex items-center gap-3 pl-3 border-l border-gray-200 dark:border-gray-700">
@@ -139,8 +149,7 @@ export function AdminNavbar({
                     {user?.fullName || user?.firstName || "-"}
                   </Text>
                   <Text className="text-xs text-gray-500 dark:text-gray-400">
-                    {user?.primaryEmailAddress?.emailAddress ||
-                      "-"}
+                    {user?.primaryEmailAddress?.emailAddress || "-"}
                   </Text>
                 </div>
                 <UserButton
