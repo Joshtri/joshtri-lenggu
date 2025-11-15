@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { pgTable, text, uuid, varchar } from "drizzle-orm/pg-core";
+import { pgTable, text, uuid, varchar, integer } from "drizzle-orm/pg-core";
 import { timestamps } from "./columns.helpers";
 import { labels } from "./labels.schema";
 import { types } from "./type.schema";
@@ -16,5 +16,6 @@ export const posts = pgTable('posts', {
     authorId: uuid('author_id').references(() => users.id).notNull(),
     labelId: uuid('label_id').references(() => labels.id).notNull(),
     typeId: uuid('type_id').references(() => types.id).notNull(),
+    viewsCount: integer('views_count').default(0).notNull(),
     ...timestamps
 });
