@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useState } from "react";
+import React, { ReactNode, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -14,13 +14,12 @@ import {
   LogOut,
   MessagesSquare,
   Type,
-  ChevronLeft,
-  ChevronRight,
 } from "lucide-react";
 import { Text } from "@/components/ui/Text";
 import { Button } from "@/components/ui/Button/Button";
 import { AdminNavbar } from "@/components/layout/admin-navbar";
 import { Tooltip } from "@heroui/react";
+import Image from "next/image";
 
 interface SysLayoutClientProps {
   children: ReactNode;
@@ -39,7 +38,28 @@ const navigation = [
 export function SysLayoutClient({ children }: SysLayoutClientProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [isDark, setIsDark] = useState(() => {
+    if (typeof document === "undefined") return false;
+    return document.documentElement.classList.contains("dark");
+  });
   const pathname = usePathname();
+
+  // Listen for theme changes
+  React.useEffect(() => {
+    const htmlElement = document.documentElement;
+
+    const observer = new MutationObserver(() => {
+      const isDarkMode = htmlElement.classList.contains("dark");
+      setIsDark(isDarkMode);
+    });
+
+    observer.observe(htmlElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -70,9 +90,27 @@ export function SysLayoutClient({ children }: SysLayoutClientProps) {
               sidebarCollapsed ? "justify-center w-full" : ""
             }`}
           >
-            <div className="w-8 h-8 bg-blue-600 dark:bg-blue-500 rounded-lg flex items-center justify-center flex-shrink-0">
-              <Text className="text-white font-bold text-sm">JL</Text>
-            </div>
+                {isDark ? (
+                  <Image
+                    src="/joshtri-lenggu-solid.png"
+                    alt="Joshtri Lenggu"
+                    width={128}
+                    height={128}
+                    quality={100}
+                    priority={true}
+                    className="w-8 h-8 object-contain"
+                  />
+                ) : (
+                  <Image
+                    src="/joshtri-lenggu-outlined.png"
+                    alt="Joshtri Lenggu"
+                    width={128}
+                    height={128}
+                    quality={100}
+                    priority={true}
+                    className="w-8 h-8 object-contain"
+                  />
+                )}
             {!sidebarCollapsed && (
               <Text className="font-semibold text-gray-900 dark:text-white whitespace-nowrap">
                 Admin Panel
@@ -139,33 +177,6 @@ export function SysLayoutClient({ children }: SysLayoutClientProps) {
             );
           })}
         </nav>
-
-        {/* Collapse Toggle Button (Desktop Only) */}
-        <div className="hidden lg:flex items-center justify-center border-t border-gray-200 dark:border-gray-800 px-4 py-3 flex-shrink-0">
-          <Button
-            type="button"
-            size="sm"
-            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className={`
-      flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium
-      bg-transparent text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors
-      ${sidebarCollapsed ? "justify-center w-10 h-10" : "justify-center w-full"}
-    `}
-            aria-label={
-              sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"
-            }
-            startContent={
-              sidebarCollapsed ? (
-                <ChevronRight className="w-5 h-5" />
-              ) : (
-                <ChevronLeft className="w-5 h-5" />
-              )
-            }
-            isIconOnly={sidebarCollapsed}
-          >
-            {!sidebarCollapsed && <span>Collapse</span>}
-          </Button>
-        </div>
 
         {/* Sidebar Footer */}
         <div className="border-t border-gray-200 dark:border-gray-800 p-4 flex flex-col items-center justify-center space-y-2 flex-shrink-0">
@@ -251,10 +262,15 @@ export function SysLayoutClient({ children }: SysLayoutClientProps) {
         `}
       >
         {/* Admin Navbar */}
-        <AdminNavbar onMenuClick={() => setSidebarOpen(true)} />
+        <AdminNavbar
+          onMenuClick={() => setSidebarOpen(true)}
+          onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
+        />
 
         {/* Page Content */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 bg-gray-50 dark:bg-gray-900">{children}</main>
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 bg-gray-50 dark:bg-gray-900">
+          {children}
+        </main>
       </div>
     </div>
   );
