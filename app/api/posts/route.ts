@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
-import { posts, users } from "@/db/schema";
-import { desc, eq } from "drizzle-orm";
+import { posts, users, postViews } from "@/db/schema";
+import { desc, eq, count, sql } from "drizzle-orm";
 import { auth } from "@clerk/nextjs/server";
 
 // GET - Fetch all posts
@@ -11,9 +11,27 @@ export async function GET(request: NextRequest) {
     const limit = searchParams.get("limit");
     const offset = searchParams.get("offset");
 
+    //Variabel qb adalah singkatan dari "query builder" (pembuat query).
+    //, qb menyimpan query builder Drizzle ORM yang belum dieksekusi. Ini memungkinkan query dibangun secara bertahap dan dinamis.
+
     const qb = db
-      .select()
+      .select({
+        id: posts.id,
+        slug: posts.slug,
+        title: posts.title,
+        excerpt: posts.excerpt,
+        content: posts.content,
+        coverImage: posts.coverImage,
+        authorId: posts.authorId,
+        labelId: posts.labelId,
+        typeId: posts.typeId,
+        createdAt: posts.createdAt,
+        updatedAt: posts.updatedAt,
+        viewsCount: sql<number>`cast(count(${postViews.id}) as integer)`,
+      })
       .from(posts)
+      .leftJoin(postViews, eq(posts.id, postViews.postId))
+      .groupBy(posts.id)
       .orderBy(desc(posts.createdAt))
       .$dynamic();
 
@@ -144,6 +162,9 @@ export async function POST(request: NextRequest) {
         typeId: typeId,
       })
       .returning();
+
+    // Note: Notifications are generated dynamically by /api/notifications endpoint
+    // based on createdAt timestamps, no need to explicitly create them
 
     return NextResponse.json(
       {
