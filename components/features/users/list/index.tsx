@@ -7,7 +7,7 @@ import { ClerkUser } from "../interfaces";
 import { ListGrid } from "@/components/ui/ListGrid";
 import { EyeIcon, UserIcon } from "lucide-react";
 import { Avatar, Chip } from "@heroui/react";
-import { ACTION_BUTTONS } from "@/components/ui/Button/ActionButtons";
+import { ACTION_BUTTONS, ADD_BUTTON } from "@/components/ui/Button/ActionButtons";
 
 export default function UserList() {
   const router = useRouter();
@@ -15,7 +15,12 @@ export default function UserList() {
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
 
-  const { data : dataUsers, isLoading, isError, error } = useUsers({
+  const {
+    data: dataUsers,
+    isLoading,
+    isError,
+    error,
+  } = useUsers({
     limit: pageSize,
     offset: (currentPage - 1) * pageSize,
     query: searchQuery || undefined,
@@ -101,6 +106,7 @@ export default function UserList() {
       title={"User Management"}
       description={"Manage users from Clerk authentication"}
       actionButtons={{
+        add: ADD_BUTTON.CREATE("/users/create"),
         show: ACTION_BUTTONS.SHOW((id) => router.push(`/users/${id}`)),
       }}
       isError={isError}
