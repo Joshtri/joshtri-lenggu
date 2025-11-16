@@ -9,6 +9,8 @@ const nextConfig: NextConfig = {
   images: {
     dangerouslyAllowLocalIP: true,
     disableStaticImages: true,
+    qualities: [25, 50, 75, 100],
+
     remotePatterns:[
       {
         protocol: 'https',
