@@ -3,37 +3,17 @@
 import React, { ReactNode, useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  LayoutDashboard,
-  FileText,
-  Tags,
-  Users,
-  Settings,
-  X,
-  Home,
-  LogOut,
-  MessagesSquare,
-  Type,
-} from "lucide-react";
+import { X, Home, LogOut } from "lucide-react";
 import { Text } from "@/components/ui/Text";
 import { Button } from "@/components/ui/Button/Button";
 import { AdminNavbar } from "@/components/layout/admin-navbar";
 import { Tooltip } from "@heroui/react";
 import Image from "next/image";
+import { adminSidebarNavigation } from "@/config/navigationItem";
 
 interface SysLayoutClientProps {
   children: ReactNode;
 }
-
-const navigation = [
-  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Posts", href: "/posts", icon: FileText },
-  { name: "Labels", href: "/labels", icon: Tags },
-  { name: "Users", href: "/users", icon: Users },
-  { name: "Comments", href: "/comments", icon: MessagesSquare },
-  { name: "Types", href: "/types", icon: Type },
-  { name: "Settings", href: "/settings", icon: Settings },
-];
 
 export function SysLayoutClient({ children }: SysLayoutClientProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -128,7 +108,7 @@ export function SysLayoutClient({ children }: SysLayoutClientProps) {
 
         {/* Navigation Sidebar System */}
         <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
-          {navigation.map((item) => {
+          {adminSidebarNavigation.map((item) => {
             const isActive =
               pathname === item.href || pathname.startsWith(item.href + "/");
             const Icon = item.icon;

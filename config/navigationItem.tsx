@@ -6,6 +6,12 @@ import {
   User,
   Settings,
   InfoIcon,
+  LayoutDashboard,
+  FileText,
+  Tags,
+  Users,
+  MessagesSquare,
+  Type,
 } from "lucide-react";
 import { type ReactNode } from "react";
 
@@ -15,6 +21,12 @@ export interface NavigationItem {
   href: string;
   icon: ReactNode;
   description?: string;
+}
+
+export interface AdminNavigationItem {
+  name: string;
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
 }
 
 /**
@@ -111,4 +123,24 @@ export const getPublicMenuItems = (): NavigationItem[] => {
  */
 export const getSystemMenuItems = (): NavigationItem[] => {
   return systemMenuItems;
+};
+
+/**
+ * Admin/System sidebar navigation - used in admin panel
+ */
+export const adminSidebarNavigation: AdminNavigationItem[] = [
+  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { name: "Posts", href: "/posts", icon: FileText },
+  { name: "Labels", href: "/labels", icon: Tags },
+  { name: "Users", href: "/users", icon: Users },
+  { name: "Comments", href: "/comments", icon: MessagesSquare },
+  { name: "Types", href: "/types", icon: Type },
+  { name: "Settings", href: "/settings", icon: Settings },
+];
+
+/**
+ * Get admin sidebar navigation items
+ */
+export const getAdminSidebarNavigation = (): AdminNavigationItem[] => {
+  return adminSidebarNavigation;
 };

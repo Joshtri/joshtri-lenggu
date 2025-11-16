@@ -1,6 +1,6 @@
 /**
  * User Layout
- * Layout for regular user area (non-admin)
+ * Protected layout for regular user area (non-admin)
  */
 
 import { ReactNode } from "react";
