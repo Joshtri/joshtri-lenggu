@@ -54,7 +54,7 @@ export default function CommentsSection({ postId }: CommentsSectionProps) {
 
   return (
     <section className="border-t-2 border-dashed border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 py-12">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="flex items-center gap-3 mb-8">
           <MessageSquare className="w-6 h-6 text-gray-900 dark:text-white" />

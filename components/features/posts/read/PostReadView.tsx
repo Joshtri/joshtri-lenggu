@@ -100,7 +100,7 @@ export default function PostReadView({
 
       {/* Cover Image */}
       {post.coverImage && (
-        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+        <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
           <div className="relative w-full h-48 sm:h-64 md:h-80 lg:h-96 overflow-hidden rounded-lg">
             <Image
               src={post.coverImage}
@@ -117,7 +117,7 @@ export default function PostReadView({
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12">
         <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 lg:gap-8">
           {/* Left Sidebar - Desktop Only */}
-          <aside className="hidden lg:flex lg:flex-col lg:items-center w-48 flex-shrink-0">
+          <aside className="hidden lg:flex lg:flex-col lg:items-center w-24 shrink-0">
             <div className="w-full sticky top-24">
               <div className="p-2">
                 <ShareButtons title={post.title} url={currentUrl} />
@@ -126,7 +126,7 @@ export default function PostReadView({
           </aside>
 
           {/* Main Article Content */}
-          <section className="flex-1 w-full max-w-full lg:max-w-3xl lg:mx-auto">
+          <section className="flex-1 w-full max-w-full lg:max-w-6xl lg:mx-auto">
             {/* AI Summarize - Mobile & Tablet */}
             <div className="lg:hidden mb-4 sm:mb-6 flex justify-start sm:justify-end">
               <div className="w-full sm:w-auto">
@@ -134,7 +134,7 @@ export default function PostReadView({
               </div>
             </div>
 
-            <Card className="w-full">
+            <Card shadow="md" className="w-full">
               <CardBody className="p-4 sm:p-5 lg:p-6">
                 <article className="prose prose-sm sm:prose-base lg:prose-lg dark:prose-invert max-w-none">
                   <div
@@ -152,7 +152,7 @@ export default function PostReadView({
           </section>
 
           {/* Right Sidebar - Desktop Only */}
-          <aside className="hidden lg:block w-full lg:w-64 xl:w-80 flex-shrink-0">
+          <aside className="hidden lg:block w-full lg:w-64 ml-4 xl:w-80 shrink-0">
             <div className="space-y-4 lg:space-y-6 sticky top-24">
               {/* AI Summarize */}
               <div className="w-full">
@@ -160,11 +160,11 @@ export default function PostReadView({
               </div>
 
               {/* Table of Contents */}
-              <Card>
-                <CardBody className="p-3 lg:p-4">
-                  <TableOfContents />
-                </CardBody>
-              </Card>
+              {/* <Card>
+                <CardBody className="p-3 lg:p-4"> */}
+              <TableOfContents />
+              {/* </CardBody>
+              </Card> */}
 
               {/* Related Posts */}
               {relatedPosts.length > 0 && (

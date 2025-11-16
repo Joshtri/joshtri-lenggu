@@ -53,7 +53,7 @@ export default function ShareButtons({ title, url }: ShareButtonsProps) {
               href={link.url}
               target="_blank"
               rel="noopener noreferrer"
-              className={`flex items-center justify-center w-12 h-12 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 transition-all ${link.color}`}
+              className={`flex items-center justify-center w-12 h-12 rounded-lg border-1 border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 transition-all ${link.color}`}
               aria-label={`Share on ${link.name}`}
               title={link.name}
             >
@@ -65,7 +65,7 @@ export default function ShareButtons({ title, url }: ShareButtonsProps) {
         {/* Copy Link Button */}
         <button
           onClick={handleCopyLink}
-          className="flex items-center justify-center w-12 h-12 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
+          className="flex items-center justify-center w-12 h-12 rounded-lg border-1 border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
           aria-label="Copy link"
           title={copied ? "Copied!" : "Copy Link"}
         >

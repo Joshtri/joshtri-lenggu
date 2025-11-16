@@ -23,11 +23,11 @@ import Link from "next/link";
  */
 export function SearchModal() {
   // Get shared state from context
-  const { isOpen, setIsOpen, handleQueryChange, handleClose } =
+  const { isOpen, setIsOpen, handleClose } =
     useSearchContext();
 
   // Get search results from hook
-  const { query, results, suggestions, isLoading, error, totalResults } =
+  const { query, results, suggestions, isLoading, error, totalResults, handleQueryChange } =
     useSearch();
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -85,7 +85,6 @@ export function SearchModal() {
             <Input
               ref={inputRef}
               isClearable
-              isDisabled={isLoading}
               className="w-full"
               placeholder="Search articles, topics, labels..."
               startContent={

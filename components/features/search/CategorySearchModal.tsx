@@ -101,7 +101,6 @@ export function CategorySearchModal({
             <Input
               ref={inputRef}
               isClearable
-              isDisabled={isLoading}
               className="w-full"
               placeholder={`Search ${typeName} articles, topics, labels...`}
               startContent={

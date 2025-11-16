@@ -39,10 +39,10 @@ Task: Create a comprehensive yet concise summary of this article. Your summary s
 Write the summary now:`;
 
     const { text } = await generateText({
-      model: google('gemini-2.5-flash'),
+      model: google('gemini-2.0-flash'),
       prompt,
       temperature: 0.5, // Lower temperature for more focused summaries
-      maxOutputTokens: 500,
+      // maxTokens: 500,
     });
 
     console.log('Article summarized successfully');

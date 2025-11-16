@@ -16,10 +16,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log('Generating text with gemini-2.5-flash...');
+    console.log('Generating text with gemini-2.0-flash...');
 
     const { text } = await generateText({
-      model: google('gemini-2.5-flash'),
+      model: google('gemini-2.0-flash'),
       prompt,
       temperature: 0.7,
     });

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Heading } from "@/components/ui/Heading";
+import { Card, CardBody, CardHeader } from "@heroui/react";
 
 interface TocItem {
   id: string;
@@ -62,28 +63,32 @@ export default function TableOfContents() {
   if (toc.length === 0) return null;
 
   return (
-    <div className="sticky top-32 space-y-4">
-      <Heading className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider">
-        Table of Contents
-      </Heading>
-      <nav className="space-y-2">
-        {toc.map((item) => (
-          <a
-            key={item.id}
-            href={`#${item.id}`}
-            className={`block text-sm transition-colors ${
-              item.level === 1 ? "pl-0" : `pl-${(item.level - 1) * 4}`
-            } ${
-              activeId === item.id
-                ? "text-blue-600 dark:text-blue-400 font-medium"
-                : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
-            }`}
-            style={{ paddingLeft: `${(item.level - 1) * 0.75}rem` }}
-          >
-            {item.text}
-          </a>
-        ))}
-      </nav>
-    </div>
+    <Card className="sticky top-32">
+      <CardHeader>
+        <Heading className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider">
+          Table of Contents
+        </Heading>
+      </CardHeader>
+      <CardBody>
+        <nav className="space-y-2">
+          {toc.map((item) => (
+            <a
+              key={item.id}
+              href={`#${item.id}`}
+              className={`block text-sm transition-colors ${
+                item.level === 1 ? "pl-0" : `pl-${(item.level - 1) * 4}`
+              } ${
+                activeId === item.id
+                  ? "text-blue-600 dark:text-blue-400 font-medium"
+                  : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
+              }`}
+              style={{ paddingLeft: `${(item.level - 1) * 0.75}rem` }}
+            >
+              {item.text}
+            </a>
+          ))}
+        </nav>
+      </CardBody>
+    </Card>
   );
 }

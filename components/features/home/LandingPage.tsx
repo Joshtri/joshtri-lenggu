@@ -1,11 +1,7 @@
 "use client";
 
 import { Button, Card, CardBody, Input } from "@heroui/react";
-import {
-  ArrowRight,
-  Sparkles,
-  Loader2,
-} from "lucide-react";
+import { ArrowRight, Sparkles, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { textToSlug } from "@/lib/slug";
@@ -149,12 +145,21 @@ export function LandingPage() {
                       <div className="flex flex-col h-full">
                         {/* Icon */}
                         <div className="mb-6">
-                          <div className={`inline-flex items-center justify-center w-16 h-16 border-2 border-dashed border-gray-400 dark:border-gray-600 rounded-full group-hover:border-gray-900 dark:group-hover:border-white transition-all duration-300 ${
-                            category.slug === 'personal-blog' || category.slug === 'personal'
-                              ? 'group-hover:scale-110'
-                              : 'group-hover:rotate-90'
-                          }`}>
-                            <Icon className={category.slug === 'personal-blog'  ? 'h-14 w-14' : 'h-7 w-7 text-gray-900 dark:text-white'} />
+                          <div
+                            className={`inline-flex items-center justify-center w-16 h-16 border-2 border-dashed border-gray-400 dark:border-gray-600 rounded-full group-hover:border-gray-900 dark:group-hover:border-white transition-all duration-300 ${
+                              category.slug === "personal-blog" ||
+                              category.slug === "personal"
+                                ? "group-hover:scale-110"
+                                : "group-hover:rotate-90"
+                            }`}
+                          >
+                            <Icon
+                              className={
+                                category.slug === "personal-blog"
+                                  ? "h-14 w-14"
+                                  : "h-7 w-7 text-gray-900 dark:text-white"
+                              }
+                            />
                           </div>
                         </div>
 
@@ -189,25 +194,35 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* CTA Section */}
+      {/* CTA Section - Join Community */}
       <section className="border-t-2 border-dashed border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 py-24 mt-20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="border-2 border-dashed border-gray-400 dark:border-gray-600 rounded-lg p-12 bg-white dark:bg-gray-950 text-center">
-            <Heading className="text-4xl font-bold mb-4 text-gray-900 dark:text-white tracking-tight">
-              Stay Updated
+          <div className="border-2 border-dashed border-gray-400 dark:border-gray-600 rounded-lg p-8 sm:p-12 bg-white dark:bg-gray-950 text-center">
+            <Heading className="text-3xl sm:text-4xl font-bold mb-4 text-gray-900 dark:text-white tracking-tight">
+              Never Miss an Update
             </Heading>
-            <Text className="text-lg text-gray-600 dark:text-gray-400 mb-10 font-light">
-              Get the latest articles delivered to your inbox
+            <Text className="text-base sm:text-lg text-gray-600 dark:text-gray-400 mb-8 font-light">
+              Create your account to get notifications for the latest articles and updates
             </Text>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-lg mx-auto">
-              <Input
-                type="email"
-                placeholder="your@email.com"
-                className="px-6 py-4 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-900 dark:focus:border-white flex-1 font-light bg-white dark:bg-gray-950"
-              />
-              <Button className="px-8 py-4 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-medium rounded-lg hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors border-2 border-gray-900 dark:border-white">
-                Subscribe
-              </Button>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link href="/auth/signup">
+                <Button
+                  size="lg"
+                  color="primary"
+                  className="w-full sm:w-auto px-8 font-medium"
+                >
+                  Create Account
+                </Button>
+              </Link>
+              <Link href="/auth/login">
+                <Button
+                  size="lg"
+                  variant="bordered"
+                  className="w-full sm:w-auto px-8 font-medium"
+                >
+                  Sign In
+                </Button>
+              </Link>
             </div>
           </div>
         </div>

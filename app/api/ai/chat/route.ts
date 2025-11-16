@@ -20,13 +20,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log('Starting chat stream with gemini-2.5-flash...');
+    console.log('Starting chat stream with gemini-2.0-flash...');
 
     // Convert messages to the proper format for the AI SDK
     const coreMessages = convertToCoreMessages(messages);
 
     const result = streamText({
-      model: google('gemini-2.5-flash'),
+      model: google('gemini-2.0-flash'),
       system: 'You are a helpful AI assistant. Provide clear, concise, and accurate responses.',
       messages: coreMessages,
       temperature: 0.7,
