@@ -45,11 +45,18 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
 
   const currentPost = post[0];
   const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const postDescription = currentPost.excerpt || currentPost.content?.substring(0, 160) || "Read this blog post on Joshtri Lenggu Blog";
+
+  // Format image URL to be absolute
+  const imageUrl = currentPost.coverImage?.startsWith('http')
+    ? currentPost.coverImage
+    : currentPost.coverImage
+    ? `${BASE_URL}${currentPost.coverImage.startsWith('/') ? '' : '/'}${currentPost.coverImage}`
+    : `${BASE_URL}/og-image.jpg`;
 
   return {
-    title: currentPost.title,
-    description: currentPost.excerpt || currentPost.content?.substring(0, 160) || "Read this blog post on Joshtri Lenggu Blog",
-    // keywords: currentPost.tags?.join(", ") || "blog, technology, learning",
+    title: `${currentPost.title} | Joshtri Lenggu Blog`,
+    description: postDescription,
     keywords: "blog, technology, learning",
     authors: [
       {
@@ -58,25 +65,33 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
     ],
     openGraph: {
       title: currentPost.title,
-      description: currentPost.excerpt || currentPost.content?.substring(0, 160),
+      description: postDescription,
       type: "article",
       publishedTime: currentPost.createdAt?.toISOString(),
       modifiedTime: currentPost.updatedAt?.toISOString(),
       url: `${BASE_URL}/${slug}/${postSlug}`,
+      siteName: "Joshtri Lenggu Blog",
       images: [
         {
-          url: currentPost.coverImage || `${BASE_URL}/og-image.jpg`,
+          url: imageUrl,
           width: 1200,
           height: 630,
           alt: currentPost.title,
+        },
+        {
+          url: `${BASE_URL}/joshtri-lenggu-solid.png`,
+          width: 192,
+          height: 192,
+          alt: "Joshtri Lenggu Logo",
         },
       ],
     },
     twitter: {
       card: "summary_large_image",
       title: currentPost.title,
-      description: currentPost.excerpt || currentPost.content?.substring(0, 160),
-      images: [currentPost.coverImage || `${BASE_URL}/og-image.jpg`],
+      description: postDescription,
+      images: [imageUrl],
+      creator: "@joshtrilenggu",
     },
     alternates: {
       canonical: `${BASE_URL}/${slug}/${postSlug}`,

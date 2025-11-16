@@ -18,9 +18,11 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+
 export const metadata: Metadata = {
-  title: "Joshtri Lenggu Blog",
-  description: "A blog about language learning and technology",
+  title: "Joshtri Lenggu Blog - Home",
+  description: "A curated collection of thoughts and insights about technology and learning",
   viewport: "width=device-width, initial-scale=1.0, maximum-scale=5.0",
   manifest: "/manifest.json",
   appleWebApp: {
@@ -50,10 +52,33 @@ export const metadata: Metadata = {
     { media: "(prefers-color-scheme: light)", color: "#ffffff" },
     { media: "(prefers-color-scheme: dark)", color: "#121212" },
   ],
-  // msapplication: {
-  //   TileColor: "#2563eb",
-  //   TileImage: "/mstile-144x144.png",
-  // },
+  openGraph: {
+    title: "Joshtri Lenggu Blog",
+    description: "A curated collection of thoughts and insights about technology and learning",
+    type: "website",
+    url: BASE_URL,
+    siteName: "Joshtri Lenggu Blog",
+    images: [
+      {
+        url: `${BASE_URL}/joshtri-lenggu-solid.png`,
+        width: 192,
+        height: 192,
+        alt: "Joshtri Lenggu Logo",
+      },
+      {
+        url: `${BASE_URL}/og-image.jpg`,
+        width: 1200,
+        height: 630,
+        alt: "Joshtri Lenggu Blog",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Joshtri Lenggu Blog",
+    description: "A curated collection of thoughts and insights about technology and learning",
+    images: [`${BASE_URL}/og-image.jpg`],
+  },
 };
 
 export default function RootLayout({

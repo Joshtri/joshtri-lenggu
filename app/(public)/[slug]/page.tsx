@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { Metadata } from "next";
 import { db } from "@/db";
 import { types, posts } from "@/db/schema";
 import { eq } from "drizzle-orm";
@@ -9,6 +10,61 @@ interface CategoryPageProps {
   params: Promise<{
     slug: string;
   }>;
+}
+
+export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+
+  // Find type by slug
+  const typeList = await db.select().from(types);
+  const type = typeList.find((t) => textToSlug(t.name) === slug);
+
+  if (!type) {
+    return {
+      title: "Category Not Found",
+      description: "The category you are looking for does not exist.",
+    };
+  }
+
+  const categoryDescription = type.description || `Explore articles in the ${type.name} category`;
+
+  return {
+    title: `${type.name} | Joshtri Lenggu Blog`,
+    description: categoryDescription,
+    keywords: `${type.name}, blog, technology, learning`,
+    openGraph: {
+      title: type.name,
+      description: categoryDescription,
+      type: "website",
+      url: `${BASE_URL}/${slug}`,
+      siteName: "Joshtri Lenggu Blog",
+      images: [
+        {
+          url: `${BASE_URL}/joshtri-lenggu-solid.png`,
+          width: 192,
+          height: 192,
+          alt: `${type.name} Category`,
+        },
+        {
+          url: `${BASE_URL}/og-image.jpg`,
+          width: 1200,
+          height: 630,
+          alt: `${type.name} - Joshtri Lenggu Blog`,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: type.name,
+      description: categoryDescription,
+      images: [`${BASE_URL}/og-image.jpg`],
+      creator: "@joshtrilenggu",
+    },
+    alternates: {
+      canonical: `${BASE_URL}/${slug}`,
+    },
+  };
 }
 
 export default async function CategoryPage({ params }: CategoryPageProps) {
