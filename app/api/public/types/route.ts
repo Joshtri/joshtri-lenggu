@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
 import { types, posts } from "@/db/schema";
-import { count, eq } from "drizzle-orm";
+import { count, eq, and } from "drizzle-orm";
 
 export async function GET(request: NextRequest) {
   try {
-    // Fetch all types with count of posts for each type
+    // Fetch all types with count of published posts for each type
     const typesWithCounts = await db
       .select({
         id: types.id,
@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
         postCount: count(posts.id),
       })
       .from(types)
-      .leftJoin(posts, eq(posts.typeId, types.id))
+      .leftJoin(posts, and(eq(posts.typeId, types.id), eq(posts.status, 'published')))
       .groupBy(types.id, types.name, types.description);
 
     return NextResponse.json(
