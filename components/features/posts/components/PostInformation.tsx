@@ -81,6 +81,19 @@ const PostInformation = ({
             isInvalid={!typesOptions.length}
           />
 
+          <SelectInput
+            name="status"
+            label="Status"
+            placeholder="Select status"
+            options={[
+              { label: "Draft", value: "draft" },
+              { label: "Published", value: "published" },
+              { label: "Archived", value: "archived" },
+            ]}
+            required={true}
+            errorMessage="Status is required"
+          />
+
           <TextareaInput
             name="excerpt"
             label="Excerpt"
