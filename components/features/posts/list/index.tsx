@@ -60,13 +60,13 @@ export function PostList() {
       label: "Status",
       align: "center" as const,
       value: (post) => {
-        if (post.deletedAt) {
-          return <Badge color="danger">Deleted</Badge>;
-        }
-        if (post.updatedAt) {
-          return <Badge color="warning">Updated</Badge>;
-        }
-        return <Badge color="success">Published</Badge>;
+        const statusMap = {
+          draft: { color: "warning" as const, label: "Draft" },
+          published: { color: "success" as const, label: "Published" },
+          archived: { color: "default" as const, label: "Archived" },
+        };
+        const status = statusMap[post.status] || statusMap.published;
+        return <Badge color={status.color}>{status.label}</Badge>;
       },
     },
     {
