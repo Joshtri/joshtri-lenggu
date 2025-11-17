@@ -9,10 +9,7 @@ interface ResponsiveCoverImageProps {
   priority?: boolean;
 }
 
-interface ImageData {
-  naturalWidth: number | undefined;
-  naturalHeight: number | undefined;
-}
+
 
 export default function ResponsiveCoverImage({
   src,
@@ -38,7 +35,7 @@ export default function ResponsiveCoverImage({
   const aspectRatio = imageDimensions.width / imageDimensions.height;
 
   return (
-    <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+    <div className="w-full max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
       <div
         className="relative w-full overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800"
         style={{
