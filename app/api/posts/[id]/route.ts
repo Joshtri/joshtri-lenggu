@@ -90,7 +90,7 @@ export async function PATCH(
     }
 
     const body = await request.json();
-    const { slug, title, coverImage, content, excerpt, authorId, labelId, typeId } =
+    const { slug, title, coverImage, content, excerpt, status, authorId, labelId, typeId } =
       body;
 
     // Check if post exists
@@ -136,6 +136,7 @@ export async function PATCH(
     if (coverImage !== undefined) updateData.coverImage = coverImage;
     if (content !== undefined) updateData.content = content;
     if (excerpt !== undefined) updateData.excerpt = excerpt;
+    if (status !== undefined) updateData.status = status;
     if (authorId !== undefined) updateData.authorId = authorId;
     if (labelId !== undefined) updateData.labelId = labelId;
     if (typeId !== undefined) updateData.typeId = typeId;
