@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import Script from "next/script";
 import { db } from "@/db";
-import { posts, types } from "@/db/schema";
+import { posts, types, labels } from "@/db/schema";
 import { eq, and, desc, ne } from "drizzle-orm";
 import { textToSlug } from "@/lib/slug";
 import PostReadView from "@/components/features/posts/read/PostReadView";
@@ -110,10 +110,32 @@ export default async function PostPage({ params }: PostPageProps) {
     notFound();
   }
 
-  // Find post by slug and typeId (only published posts)
+  // Find post by slug and typeId (only published posts) with label data
   const post = await db
-    .select()
+    .select({
+      id: posts.id,
+      slug: posts.slug,
+      title: posts.title,
+      excerpt: posts.excerpt,
+      content: posts.content,
+      coverImage: posts.coverImage,
+      authorId: posts.authorId,
+      labelId: posts.labelId,
+      typeId: posts.typeId,
+      status: posts.status,
+      createdAt: posts.createdAt,
+      updatedAt: posts.updatedAt,
+      deletedAt: posts.deletedAt,
+      viewsCount: posts.viewsCount,
+      label: {
+        id: labels.id,
+        name: labels.name,
+        color: labels.color,
+        description: labels.description,
+      },
+    })
     .from(posts)
+    .leftJoin(labels, eq(posts.labelId, labels.id))
     .where(and(eq(posts.slug, postSlug), eq(posts.typeId, type.id), eq(posts.status, 'published')))
     .limit(1);
 
