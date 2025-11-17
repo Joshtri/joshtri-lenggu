@@ -118,9 +118,9 @@ export default function PostReadView({
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12">
         <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 lg:gap-8">
           {/* Left Sidebar - Desktop Only */}
-          <aside className="hidden lg:flex lg:flex-col lg:items-center lg:w-28 xl:w-28 shrink-0">
+          <aside className="hidden lg:flex lg:flex-col lg:items-center lg:w-16 xl:w-16 flex-shrink-0">
             <div className="w-full sticky top-24">
-              <div className="p-2">
+              <div className="p-1">
                 <ShareButtons title={post.title} url={currentUrl} />
               </div>
             </div>
@@ -153,7 +153,7 @@ export default function PostReadView({
           </section>
 
           {/* Right Sidebar - Desktop Only */}
-          <aside className="hidden lg:block w-full lg:w-28 ml-4 xl:w-28 shrink-0">
+          <aside className="hidden lg:block lg:w-28 xl:w-28 shrink-0">
             <div className="space-y-4 lg:space-y-6 sticky top-24">
               {/* AI Summarize */}
               <div className="w-full">
