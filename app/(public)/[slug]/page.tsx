@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { db } from "@/db";
-import { types, posts } from "@/db/schema";
+import { types, posts, labels } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import { textToSlug } from "@/lib/slug";
 import CategoryView from "@/components/features/category/CategoryView";
@@ -80,10 +80,32 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     notFound();
   }
 
-  // Fetch posts for this type (only published)
+  // Fetch posts for this type (only published) with label data
   const postList = await db
-    .select()
+    .select({
+      id: posts.id,
+      slug: posts.slug,
+      title: posts.title,
+      excerpt: posts.excerpt,
+      content: posts.content,
+      coverImage: posts.coverImage,
+      authorId: posts.authorId,
+      labelId: posts.labelId,
+      typeId: posts.typeId,
+      status: posts.status,
+      createdAt: posts.createdAt,
+      updatedAt: posts.updatedAt,
+      deletedAt: posts.deletedAt,
+      viewsCount: posts.viewsCount,
+      label: {
+        id: labels.id,
+        name: labels.name,
+        color: labels.color,
+        description: labels.description,
+      },
+    })
     .from(posts)
+    .leftJoin(labels, eq(posts.labelId, labels.id))
     .where(and(eq(posts.typeId, type.id), eq(posts.status, 'published')));
 
   return (
