@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
 import { posts, labels, types, users } from "@/db/schema";
-import { sql, ilike, desc } from "drizzle-orm";
+import { sql, desc } from "drizzle-orm";
 import { generateObject } from "ai";
 import { google } from "@ai-sdk/google";
 import { z } from "zod";
