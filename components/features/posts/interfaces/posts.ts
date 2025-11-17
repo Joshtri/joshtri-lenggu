@@ -7,6 +7,7 @@ export interface Post  extends BaseEntity{
     content: string;
     excerpt: string;
     viewsCount: number;
+    status: 'draft' | 'published' | 'archived';
     authorId: string | null;
     labelId: string | null;
     typeId: string | null;
@@ -18,6 +19,7 @@ export interface CreatePostInput extends Pick<BaseEntity, "id"> {
     coverImage: string;
     content: string;
     excerpt: string;
+    status?: 'draft' | 'published' | 'archived';
     authorId?: string;
     labelId?: string;
     typeId?: string;
@@ -29,6 +31,7 @@ export interface UpdatePostInput {
     coverImage?: string;
     content?: string;
     excerpt?: string;
+    status?: 'draft' | 'published' | 'archived';
     authorId?: number;
     labelId?: number;
     typeId?: number;
