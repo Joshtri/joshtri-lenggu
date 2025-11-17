@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { db } from "@/db";
 import { types, posts } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { textToSlug } from "@/lib/slug";
 import CategoryView from "@/components/features/category/CategoryView";
 
@@ -80,11 +80,11 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     notFound();
   }
 
-  // Fetch posts for this type
+  // Fetch posts for this type (only published)
   const postList = await db
     .select()
     .from(posts)
-    .where(eq(posts.typeId, type.id));
+    .where(and(eq(posts.typeId, type.id), eq(posts.status, 'published')));
 
   return (
     <CategoryView
