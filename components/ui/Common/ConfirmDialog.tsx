@@ -48,7 +48,7 @@ import {
   
     return (
       <Modal
-        backdrop="blur"
+        backdrop="opaque"
         isDismissable={!isLoading}
         isOpen={isOpen}
         placement="center"

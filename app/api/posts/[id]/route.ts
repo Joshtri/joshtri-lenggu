@@ -202,9 +202,10 @@ export async function DELETE(
       );
     }
 
-    // Delete related comments first (cascade delete)
+    // Delete related records first (cascade delete)
     await db.delete(comments).where(eq(comments.postId, id));
-
+    await db.delete(postViews).where(eq(postViews.postId, id));
+    
     // Then delete the post
     await db.delete(posts).where(eq(posts.id, id));
 
