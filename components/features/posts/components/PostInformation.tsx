@@ -1,4 +1,4 @@
-import { SelectInput, TextareaInput, TextInput } from "@/components/ui/Inputs";
+import { AutocompleteInput, SelectInput, TextareaInput, TextInput } from "@/components/ui/Inputs";
 import { ImageUploadInput } from "@/components/ui/Inputs/ImageUploadInput";
 // import { ImageUpload } from "@/components/ui/Inputs/ImageUpload";
 import React from "react";
@@ -18,7 +18,7 @@ const PostInformation = ({
   return (
     <>
       <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
-        <div className="p-4 bg-linear-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-750 border-b border-gray-200 dark:border-gray-700">
+        <div className="p-4 bg-linear-to-r to-gray-600 dark:from-gray-800 dark:to-gray-750 border-b border-gray-200 dark:border-gray-700">
           <Heading level={2} className="text-lg font-semibold text-gray-900 dark:text-white">Post Information</Heading>
         </div>
         <div className="p-6 space-y-4">
@@ -57,7 +57,7 @@ const PostInformation = ({
             helperText="Upload an image (max 5MB)"
           />
 
-          <SelectInput
+          <AutocompleteInput
             name="labelId"
             label="Label"
             placeholder="Select a label"
@@ -68,7 +68,7 @@ const PostInformation = ({
             required
           />
 
-          <SelectInput
+          <AutocompleteInput
             name="typeId"
             label="Type"
             placeholder="Select a type"
@@ -81,7 +81,7 @@ const PostInformation = ({
             isInvalid={!typesOptions.length}
           />
 
-          <SelectInput
+          <AutocompleteInput
             name="status"
             label="Status"
             placeholder="Select status"

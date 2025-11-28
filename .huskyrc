@@ -1,0 +1,6 @@
+# Load nvm if available
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
+# Add common paths for bun and node
+export PATH="$HOME/.bun/bin:$HOME/.nvm/versions/node/v24.11.1/bin:$PATH"

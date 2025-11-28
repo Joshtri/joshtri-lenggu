@@ -19,6 +19,8 @@ interface AutocompleteInputProps {
   placeholder?: string;
   disabled?: boolean;
   required?: boolean;
+  errorMessage?: string;
+  isInvalid?: boolean;
   // loading?: boolean;
   onChange?: (value: string | number | boolean) => void;
   isLoading?: boolean;
@@ -33,9 +35,11 @@ export const AutocompleteInput = ({
   disabled = false,
   required = true,
   // loading = false,
+  errorMessage,
+  isInvalid = false,
   onChange,
   isLoading = false,
-  isClearable = false,
+  isClearable,
 }: AutocompleteInputProps) => {
   const {
     control,
@@ -59,9 +63,10 @@ export const AutocompleteInput = ({
             aria-label={label ?? name}
             isClearable={isClearable}
             isDisabled={disabled}
-            isInvalid={!!error}
+            isInvalid={isInvalid || !!error}
             isLoading={isLoading}
             placeholder={placeholder}
+            errorMessage={errorMessage || error}
             selectedKey={String(field.value)}
             onSelectionChange={(key: string | number | null) => {
               const selected = key as string;
@@ -74,7 +79,7 @@ export const AutocompleteInput = ({
               onChange?.(newValue);
             }}
           >
-            {options.map(opt => (
+            {options.map((opt) => (
               <AutocompleteItem key={String(opt.value)}>
                 {opt.label}
               </AutocompleteItem>

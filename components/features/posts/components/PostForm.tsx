@@ -332,7 +332,7 @@ export default function PostForm({ mode, postId }: PostFormProps) {
               <div className="lg:col-span-2 space-y-6">
                 {/* Editor Card */}
                 <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
-                  <div className="p-4 bg-linear-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-750 border-b border-gray-200 dark:border-gray-700">
+                  <div className="p-4 bg-linear-to-r to-gray-600 dark:from-gray-800 dark:to-gray-750 border-b border-gray-200 dark:border-gray-700">
                     <Heading className="text-lg font-semibold flex items-center gap-2 text-gray-900 dark:text-white">
                       <FileText className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                       Content Editor

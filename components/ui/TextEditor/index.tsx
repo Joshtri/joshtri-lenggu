@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, forwardRef, useImperativeHandle } from "react";
 import type Quill from "quill";
+//@ts-expect-error: Quill types not found
 import "quill/dist/quill.snow.css";
 import { cn } from "@heroui/react";
 
@@ -337,7 +338,7 @@ const RichTextEditor = forwardRef<RichTextEditorHandle, RichTextEditorProps>(
 
           /* Dark mode support */
           .dark .rich-text-editor .ql-toolbar {
-            background: linear-gradient(to right, #1e293b, #334155);
+            background: linear-gradient(to right, #9fa0a1, #a7aeb7);
             border-bottom-color: #475569;
           }
 
